@@ -7,8 +7,8 @@ Agate = "41889b7c-c35c-4f16-abd7-94b299d9fd29"
 
 [compat]
 julia = "1.10"
-OceanBioME = "0.21"
-Oceananigans = "0.117"
+OceanBioME = "0.20, 0.21"
+Oceananigans = "0.114, 0.117"
 ForwardDiff = "1"
 Enzyme = "0.13.78"
 
