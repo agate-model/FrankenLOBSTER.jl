@@ -161,7 +161,9 @@ end
               hook(1, 1, 1, _GRID, bgc.plankton, bgc, exchanged_state, aux)
     end
     tendency(tracer, fields) = bgc(1, 1, 1, _GRID, Val(tracer), (; time=0.0), fields, aux)
-    uptake(tracer, fields) = nutrient_uptake(1, 1, 1, _GRID, Val(tracer), bgc.plankton, bgc, fields, aux)
+    uptake(tracer, fields, auxiliary=aux) = nutrient_uptake(
+        1, 1, 1, _GRID, Val(tracer), bgc.plankton, bgc, fields, auxiliary
+    )
 
     @test uptake(:DOM, _fields()) == 0
     # OceanBioME's elemental Val methods must remain unambiguous and retain
@@ -190,11 +192,12 @@ end
     nitrate = _fields(; NO₃=1.0, P_1=2.0)
     gross = uptake(:NO₃, nitrate)
     @test [gross, tendency(:P_1, nitrate), tendency(:NH₄, nitrate), tendency(:DOM, nitrate)] ≈
-          [1 - exp(-1), 0.95 * gross, 0.0375 * gross, 0.0125 * gross]
+          [0.5, 0.95 * gross, 0.0375 * gross, 0.0125 * gross]
+    @test [uptake(:NO₃, nitrate, (PAR=_cell(I),)) for I in (0.0, 3.0)] ≈ [0.0, 0.75]
 
     mixed = _fields(; NO₃=10.0, NH₄=10.0, P_1=2.0)
     @test uptake(:NO₃, mixed) + uptake(:NH₄, mixed) ≈
-          2 * (1 - exp(-1)) * (10 / 11 * exp(-1) + 10 / 11)
+          10 / 11 * (exp(-1) + 1)
     @test [tendency(t, _fields(; Z_1=2.0)) for t in (:Z_1, :NH₄, :DOM)] ≈ [-2.0, 1.0, 1.0]
     @test [tendency(t, _fields(; DOM=3.0, H_1=2.0)) for t in (:DOM, :H_1, :NH₄)] ≈ [-3.0, 0.75, 2.25]
 
