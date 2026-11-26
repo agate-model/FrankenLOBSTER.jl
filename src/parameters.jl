@@ -17,7 +17,7 @@ function parameter_definitions(::FrankenLOBSTERFamily)
     law(prefactor, exponent) = AllometricParam(PowerLaw(); prefactor, exponent)
     diameter_default(value) = DiameterIndexedVectorDefault(value; default=0)
 
-    # FrankenLOBSTER keeps size-dependent traits while using LOBSTER light and N responses.
+    # FrankenLOBSTER combines size-dependent traits with Monod light and LOBSTER nutrient responses.
     maximum_growth = law(1.2066 / day, 0.28)
     nitrate_affinity = law(0.028154, 0.65)
     ammonia_affinity = law(0.5 * 0.028154, 0.65)

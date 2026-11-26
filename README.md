@@ -31,6 +31,8 @@ The default community contains two phytoplankton SizeClasses (`P`), two
 zooplankton SizeClasses (`Z`), and one heterotrophic bacterioplankton SizeClass
 (`H`). `size_structure`, `parameters`, `settings`, `sinking_tracers`, and
 `open_bottom` can be configured through `construct` and recorded in a recipe.
+Phytoplankton growth uses Monod light limitation, `PAR / (PAR + light_half_saturation)`,
+with a default half-saturation of 33 W m⁻².
 
 The existing [Agate documentation](https://agate-model.github.io/Agate.jl/dev/)
 contains the end-to-end FrankenLOBSTER/OceanBioME tutorial.
