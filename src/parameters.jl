@@ -3,7 +3,7 @@ import Agate.Parameters:
     DiameterIndexedVectorDefault, BroadcastConsumerAcrossResources
 import Agate.ModelFamilies: ModelSetting, setting_definitions
 
-using Agate.Library.Allometry: AllometricParam, PowerLaw
+using Agate.Library.Allometry: AllometricParam, PowerLaw, SplitPowerLaw
 using Agate.Parameters: AllometricPalatability
 
 setting_definitions(::FrankenLOBSTERFamily) = (
@@ -15,12 +15,16 @@ setting_definitions(::FrankenLOBSTERFamily) = (
 function parameter_definitions(::FrankenLOBSTERFamily)
     day = 86400
     law(prefactor, exponent) = AllometricParam(PowerLaw(); prefactor, exponent)
+    split_law(prefactor, small_exponent, large_exponent) = AllometricParam(
+        SplitPowerLaw(); prefactor, breakpoint=3.0, small_exponent, large_exponent,
+    )
     diameter_default(value) = DiameterIndexedVectorDefault(value; default=0)
 
     # FrankenLOBSTER combines size-dependent traits with Monod light and LOBSTER nutrient responses.
-    maximum_growth = law(1.2066 / day, 0.28)
-    nitrate_affinity = law(0.028154, 0.65)
-    ammonia_affinity = law(0.5 * 0.028154, 0.65)
+    # Continuous Follett/Blackledge growth scaling, with K_N proportional to growth * V^0.37.
+    maximum_growth = split_law(1.2066 / day, 0.28, -0.10)
+    nitrate_affinity = split_law(0.028154, 0.65, 0.27)
+    ammonia_affinity = split_law(0.5 * 0.028154, 0.65, 0.27)
     bacterial_uptake = law(1.836 / day, 0.28)
     bacterial_affinity = law(0.04284, 0.65)
 

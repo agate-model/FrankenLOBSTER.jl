@@ -131,6 +131,22 @@ end
     @test_throws ArgumentError FrankenLOBSTER.construct(sinking_tracers=(P_1=0.1,))
 end
 
+@testset "FrankenLOBSTER phytoplankton allometry" begin
+    diameters = [0.6, 1.2, 3.0, 20.0]
+    size_structure = (
+        phytoplankton=(P=diameters,), zooplankton=(Z=[6.0, 12.0],),
+        bacterioplankton=(H=[0.6],),
+    )
+    p = FrankenLOBSTER.construct(; size_structure, scalar_type=Float64).runtime.parameters
+    V = (π / 6) .* diameters.^3
+    V₀ = V[3]
+    growth = 1.2066 .* min.(V, V₀).^0.28 .* max.(V ./ V₀, 1.0).^(-0.10)
+    nitrate = (0.028154 / 1.2066) .* growth .* V.^0.37
+    @test p.maximum_growth_rate[1:4] ≈ growth ./ 86400
+    @test p.nitrate_half_saturation[1:4] ≈ nitrate
+    @test p.ammonia_half_saturation[1:4] ≈ nitrate ./ 2
+end
+
 @testset "FrankenLOBSTER LOBSTER exchange" begin
     bgc = _controlled()
     # Validate configured exchange routes against the native NPD component
